@@ -40,3 +40,22 @@
 .read-the-docs {
   color: #888;
 }
+
+.game-title {
+  margin: 0 0 20px 0;
+}
+
+.game-status {
+  margin: 0 0 50px 0;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.game-button {
+  width: 50px;
+  height: 50px;
+}

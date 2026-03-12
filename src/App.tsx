@@ -1,10 +1,44 @@
 import { useMemo, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
+const checkWin = (boards: number[]) => {
+  const size = 5;
+  const directions = [
+    { dx: 0, dy: 1 },
+    { dx: 1, dy: 0 },
+    { dx: 1, dy: 1 },
+    { dx: 1, dy: -1 }
+  ];
+
+  for (let i = 0; i < boards.length; i++) {
+    if (boards[i] === 0) continue;
+
+    const y = i % size;
+    const x = (i - y) / size;
+
+    for (const { dx, dy } of directions) {
+      for (let j = 1; j <= 2; j++) {
+        const x1 = x + dx * j;
+        const y1 = y + dy * j;
+        const index1 = x1 * size + y1;
+        if (x1 < 0 || x1 >= size || y1 < 0 || y1 >= size || boards[index1] !== boards[i]) {
+          break;
+        }
+        if (j === 2) {
+          return boards[i];
+        }
+      }
+    }
+  }
+  return undefined;
+}
+
+const checkDraw = (boards: number[]) => {
+  return boards.every(board => board !== 0);
+}
+
 function App() {
-  const [boards, setBoards] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const [boards, setBoards] = useState(Array(5 * 5).fill(0));
   const [turn, setTurn] = useState(1);
   const [isGameOver, setIsGameOver] = useState(false);
 
@@ -13,30 +47,17 @@ function App() {
     const newBoards = [...boards];
     newBoards[index] = turn;
     setBoards(newBoards);
-    setTurn(3 - turn);
+    setTurn(turn === 1 ? 2 : 1);
   }
 
   const displayGameStatus = useMemo(() => {
-    const winPatterns = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6]
-    ];
-
-    for (const pattern of winPatterns) {
-      const [a, b, c] = pattern;
-      if (boards[a] !== 0 && boards[a] === boards[b] && boards[a] === boards[c]) {
-        setIsGameOver(true);
-        return `Player ${boards[a]} wins!`;
-      }
+    const isWin = checkWin(boards);
+    if (isWin) {
+      setIsGameOver(true);
+      return `Player ${isWin} wins!`;
     }
 
-    if (boards.every(board => board !== 0)) {
+    if (checkDraw(boards)) {
       setIsGameOver(true);
       return 'It\'s a draw!';
     }
@@ -45,20 +66,20 @@ function App() {
   }, [boards, turn]);
 
   const handleClickNewGame = () => {
-    setBoards([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    setBoards(Array(5 * 5).fill(0));
     setTurn(1);
     setIsGameOver(false);
   }
 
   return (
     <>
-      <div style={{ marginBottom: 20 }}>
+      <div className="game-title">
         <button onClick={handleClickNewGame}>New Game</button>
       </div>
-      <div style={{ marginBottom: 50 }}>Game Status: {displayGameStatus}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+      <div className="game-status">Game Status: {displayGameStatus}</div>
+      <div className="game-board">
         {boards.map((board, index) => (
-          <div key={index}><button style={{ width: 50, height: 50 }} onClick={() => handleClickBoard(index)}>{board === 1 ? 'X' : board === 2 ? 'O' : ''}</button></div>
+          <div key={index}><button className="game-button" onClick={() => handleClickBoard(index)}>{board === 1 ? 'X' : board === 2 ? 'O' : ''}</button></div>
         ))}
       </div>
     </>
