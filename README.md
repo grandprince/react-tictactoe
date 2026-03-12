@@ -20,5 +20,5 @@ npm install
 ## Start Game
 
 ```bash
-npm run start
+npm run dev
 ```
